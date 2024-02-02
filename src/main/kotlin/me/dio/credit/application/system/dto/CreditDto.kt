@@ -11,7 +11,7 @@ data class CreditDto(
     @field:Future
     @field:Max(
         value = 90,
-        message = "First installment must wait at least 3 months."
+        message = "First installment must be before 3 months."
     ) val dayFirstOfInstallment: LocalDate,
     @field:Positive(message = "Number of installments must be equal to 1 or higher.")
     @field:Min(value = 1, message = "Minimum value is 1.")
