@@ -9,7 +9,7 @@ import java.time.LocalDate
 data class CreditDto(
     @field:NotNull(message = "The field creditValue cannot be empty.") val creditValue: BigDecimal,
     @field:Future
-    @field:Min(
+    @field:Max(
         value = 90,
         message = "First installment must wait at least 3 months."
     ) val dayFirstOfInstallment: LocalDate,
