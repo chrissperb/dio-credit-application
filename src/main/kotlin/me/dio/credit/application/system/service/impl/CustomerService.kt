@@ -4,6 +4,8 @@ import me.dio.credit.application.system.entity.Customer
 import me.dio.credit.application.system.exception.BusinessException
 import me.dio.credit.application.system.repository.CustomerRepository
 import me.dio.credit.application.system.service.ICustomerService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 
 @Service
@@ -15,6 +17,10 @@ class CustomerService(private val customerRepository: CustomerRepository) : ICus
         this.customerRepository.findById(id).orElseThrow {
             throw BusinessException("Id $id not found.")
         }
+
+    override fun findAll(pageable: Pageable): Page<Customer> =
+        this.customerRepository.findAll(pageable)
+
 
     override fun deleteById(id: Long) {
         val customer = this.findById(id)
