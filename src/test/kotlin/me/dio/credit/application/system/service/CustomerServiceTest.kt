@@ -5,21 +5,24 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import me.dio.credit.application.system.entity.Address
 import me.dio.credit.application.system.entity.Customer
+import me.dio.credit.application.system.exception.BusinessException
 import me.dio.credit.application.system.repository.CustomerRepository
 import me.dio.credit.application.system.service.impl.CustomerService
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.test.context.ActiveProfiles
 import java.math.BigDecimal
-import me.dio.credit.application.system.entity.Address
-import org.assertj.core.api.Assertions
+import java.util.*
 
 @ActiveProfiles("test")
 @ExtendWith(MockKExtension::class)
 class CustomerServiceTest {
     @MockK
     lateinit var customerRepository: CustomerRepository
+
     @InjectMockKs
     lateinit var customerService: CustomerService
 
@@ -36,7 +39,36 @@ class CustomerServiceTest {
         verify(exactly = 1) { customerRepository.save(fakeCustomer) }
     }
 
+    @Test
+    fun `should find customer by id`() {
+        //given
+        val fakeId: Long = Random().nextLong()
+        val fakeCustomer: Customer = buildCustomer(id = fakeId)
+        every { customerRepository.findById(fakeId) } returns Optional.of(fakeCustomer)
+        //when
+        val actual: Customer = customerService.findById(fakeId)
+        //then
+        Assertions.assertThat(actual).isExactlyInstanceOf(Customer::class.java)
+        Assertions.assertThat(actual).isNotNull
+        Assertions.assertThat(actual).isSameAs(fakeCustomer)
+        verify(exactly = 1) { customerRepository.findById(fakeId) }
+    }
+
+    @Test
+    fun `should not find customer by invalid id and throw business exception`() {
+        //given
+        val fakeId: Long = Random().nextLong()
+        every { customerRepository.findById(fakeId) } returns Optional.empty()
+        //when
+        //then
+        Assertions.assertThatExceptionOfType(BusinessException::class.java)
+            .isThrownBy { customerService.findById(fakeId) }
+            .withMessage("Id $fakeId not found.")
+        verify(exactly = 1) { customerRepository.findById(fakeId) }
+    }
+
     companion object
+
     fun buildCustomer(
         firstName: String = "Chris",
         lastName: String = "Sperb",
