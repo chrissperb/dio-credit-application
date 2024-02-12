@@ -3,7 +3,6 @@ package me.dio.credit.application.system.repository
 import me.dio.credit.application.system.entity.Address
 import me.dio.credit.application.system.entity.Credit
 import me.dio.credit.application.system.entity.Customer
-import me.dio.credit.application.system.enummeration.Status
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -14,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.test.context.ActiveProfiles
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.Month
 import java.util.*
 
 @ActiveProfiles("test")
@@ -22,6 +22,7 @@ import java.util.*
 class CreditRepositoryTest {
     @Autowired
     lateinit var creditRepository: CreditRepository
+
     @Autowired
     lateinit var testEntityManager: TestEntityManager
 
@@ -29,10 +30,11 @@ class CreditRepositoryTest {
     private lateinit var credit1: Credit
     private lateinit var credit2: Credit
 
-    @BeforeEach fun setup() {
+    @BeforeEach
+    fun setup() {
         customer = testEntityManager.persist(buildCustomer())
-        credit1 = testEntityManager.persist(buildCredit())
-        credit2 = testEntityManager.persist(buildCredit())
+        credit1 = testEntityManager.persist(buildCredit(customer = customer))
+        credit2 = testEntityManager.persist(buildCredit(customer = customer))
     }
 
     @Test
@@ -40,54 +42,53 @@ class CreditRepositoryTest {
         // Given
         val creditCode1 = UUID.fromString("aa547c0f-9a6a-451f-8c89-afddce916a29")
         val creditCode2 = UUID.fromString("49f740be-46a7-449b-84e7-ff5b7986d7ef")
-
-        val persistedCustomer = testEntityManager.merge(buildCustomer())
-        val persistedCredit1 = testEntityManager.merge(buildCredit(customer = persistedCustomer, creditCode = creditCode1))
-        val persistedCredit2 = testEntityManager.merge(buildCredit(customer = persistedCustomer, creditCode = creditCode2))
-
-        testEntityManager.flush()
-
+        credit1.creditCode = creditCode1
+        credit2.creditCode = creditCode2
         // When
-        val fakeCredit1 = creditRepository.findByCreditCode(creditCode1)
-        val fakeCredit2 = creditRepository.findByCreditCode(creditCode2)
-
+        val fakeCredit1 = creditRepository.findByCreditCode(creditCode1)!!
+        val fakeCredit2 = creditRepository.findByCreditCode(creditCode2)!!
         // Then
         Assertions.assertThat(fakeCredit1).isNotNull
         Assertions.assertThat(fakeCredit2).isNotNull
-        Assertions.assertThat(fakeCredit1).isSameAs(persistedCredit1)
-        Assertions.assertThat(fakeCredit2).isSameAs(persistedCredit2)
+        Assertions.assertThat(fakeCredit1).isSameAs(credit1)
+        Assertions.assertThat(fakeCredit2).isSameAs(credit2)
+    }
+
+    @Test
+    fun `should find all customers by id`() {
+        // Given
+        val customerId: Long = 1L
+        // When
+        val creditList: List<Credit> = creditRepository.findAllByCustomerId(customerId)
+        // Then
+        Assertions.assertThat(creditList).isNotEmpty
+        Assertions.assertThat(creditList.size).isEqualTo(2)
+        Assertions.assertThat(creditList).contains(credit1, credit2)
     }
 
 
     companion object {
-        fun buildCredit(
-            creditCode: UUID = UUID.randomUUID(),
-            creditValue: BigDecimal = BigDecimal.valueOf(10000),
-            dayFirstInstallment: LocalDate = LocalDate.of(2024, 3, 1),
-            numberOfInstallments: Int = 24,
-            status: Status = Status.IN_PROGRESS,
-            customer: Customer? = buildCustomer(),
-            id: Long? = 1L
-        ) = Credit(
-            creditCode = creditCode,
+        private fun buildCredit(
+            creditValue: BigDecimal = BigDecimal.valueOf(500.0),
+            dayFirstInstallment: LocalDate = LocalDate.of(2023, Month.APRIL, 22),
+            numberOfInstallments: Int = 5,
+            customer: Customer
+        ): Credit = Credit(
             creditValue = creditValue,
             dayFirstInstallment = dayFirstInstallment,
             numberOfInstallments = numberOfInstallments,
-            status = status,
-            customer = customer,
-            id = id
+            customer = customer
         )
 
-        fun buildCustomer(
+        private fun buildCustomer(
             firstName: String = "Chris",
             lastName: String = "Sperb",
-            cpf: String = "80764029053",
-            email: String = "chrissperb@gmail.com",
-            password: String = "1234",
-            zipCode: String = "88495000",
+            cpf: String = "28475934625",
+            email: String = "chris@example.com",
+            password: String = "12345",
+            zipCode: String = "12345",
             street: String = "Rua Manoel",
-            income: BigDecimal = BigDecimal.valueOf(2700.0),
-            id: Long = 1L
+            income: BigDecimal = BigDecimal.valueOf(1000.0),
         ) = Customer(
             firstName = firstName,
             lastName = lastName,
@@ -96,10 +97,9 @@ class CreditRepositoryTest {
             password = password,
             address = Address(
                 zipCode = zipCode,
-                street = street
+                street = street,
             ),
             income = income,
-            id = id
         )
     }
 }
