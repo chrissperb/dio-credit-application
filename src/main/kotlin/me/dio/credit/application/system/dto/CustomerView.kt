@@ -5,20 +5,22 @@ import java.math.BigDecimal
 
 data class CustomerView(
     val firstName: String,
-    val lasName: String,
+    val lastName: String,
     val cpf: String,
     val income: BigDecimal,
     val email: String,
     val zipCode: String,
     val street: String,
+    val id: Long?
 ) {
     constructor(customer: Customer) : this(
         firstName = customer.firstName,
-        lasName = customer.lastName,
+        lastName = customer.lastName,
         cpf = customer.cpf,
         income = customer.income,
         email = customer.email,
         zipCode = customer.address.zipCode,
-        street = customer.address.street
+        street = customer.address.street,
+        id = customer.id
     )
 }
