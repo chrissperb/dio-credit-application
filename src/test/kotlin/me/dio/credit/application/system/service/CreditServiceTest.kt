@@ -22,7 +22,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.util.*
 
-@ActiveProfiles("test")
+//@ActiveProfiles("test")
 @ExtendWith(MockKExtension::class)
 class CreditServiceTest {
     @MockK
