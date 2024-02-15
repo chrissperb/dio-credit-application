@@ -82,7 +82,9 @@ Se possível:
 🐛 Encontrar e relatar issues
 
 <hr>
-<h3>Sobre Camila Cavalcante - mentora do projeto </h3>
+<h3>Sobre Camila Cavalcante - mentora do projeto na plataforma </h3>
+
+Plataforma de aprendizagem: [@Dio.me](https://www.github.com/digitalinnovationone)
 
 <a href="https://www.instagram.com/camimi_la/">
  <img style="border-radius: 50%;" src="https://avatars.githubusercontent.com/u/64323124?v=4" width="100px;" alt=""/>
