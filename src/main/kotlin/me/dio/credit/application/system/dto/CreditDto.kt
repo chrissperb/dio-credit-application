@@ -5,18 +5,16 @@ import me.dio.credit.application.system.entity.Credit
 import me.dio.credit.application.system.entity.Customer
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.util.*
 
 data class CreditDto(
     @field:NotNull(message = "The field creditValue cannot be empty.") val creditValue: BigDecimal,
-    @field:Future
-    @field:Max(
-        value = 90,
-        message = "First installment must be before 3 months."
-    ) val dayFirstOfInstallment: LocalDate,
+    @field:Future val dayFirstOfInstallment: LocalDate,
     @field:Positive(message = "Number of installments must be equal to 1 or higher.")
     @field:Min(value = 1, message = "Minimum value is 1.")
     @field:Max(value = 48, message = "Installments can´t be higher than 48.") val numberOfInstallments: Int,
-    @field:NotNull(message = "The field creditValue cannot be empty.") val customerId: Long
+    @field:NotNull(message = "The field creditValue cannot be empty.") val customerId: Long,
+    val creditCode: UUID
 ) {
 
     fun toEntity(): Credit = Credit(
